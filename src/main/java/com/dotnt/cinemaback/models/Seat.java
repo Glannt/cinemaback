@@ -1,6 +1,7 @@
 package com.dotnt.cinemaback.models;
 
-import com.dotnt.cinemaback.constants.SeatType;
+import com.dotnt.cinemaback.constants.enums.SeatStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,12 +15,28 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Seat extends AbstractEntity<UUID>{
-    private String name;
+public class Seat extends AbstractEntity<UUID> {
+    //    @Column(nullable = false)
+    private String row;  // e.g., "A", "B", "C"
 
-    @Enumerated(EnumType.STRING)
-    private SeatType type;
+    //    @Column(nullable = false)
+    private Integer number;  // e.g., 1, 2, 3
+
+//    @Enumerated(EnumType.STRING)
+//    private SeatType type;
+
+    @Column(nullable = false)
+    private Double price;
+
+    //    @Column(nullable = false)
+    private SeatStatus status;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "seat_type_id", nullable = false)
+    private SeatType seatType;
 
     @OneToMany(mappedBy = "seat")
+//    @JsonManagedReference
+    @JsonIgnore
     private Set<HallHasSeat> hallHasSeats;
 }

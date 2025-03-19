@@ -1,20 +1,14 @@
 package com.dotnt.cinemaback.models;
 
-import com.dotnt.cinemaback.constants.Gender;
-import com.dotnt.cinemaback.constants.UserStatus;
-
+import com.dotnt.cinemaback.constants.enums.Gender;
+import com.dotnt.cinemaback.constants.enums.UserStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.*;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
-import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "user")
@@ -25,7 +19,7 @@ import java.util.stream.Collectors;
 @Builder
 public class User extends AbstractEntity<UUID>
 //        implements UserDetails
-        {
+{
 
     @Email
     @Column(name = "email", nullable = false, unique = true)

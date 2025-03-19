@@ -1,10 +1,12 @@
 package com.dotnt.cinemaback.models;
 
 
-import com.dotnt.cinemaback.constants.CinemaStatus;
+import com.dotnt.cinemaback.constants.enums.CinemaStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -15,13 +17,18 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Cinema extends AbstractEntity<UUID>{
+public class Cinema extends AbstractEntity<UUID> {
+
+    @NotNull(message = "Name is required")
     private String name;
 
+    @NotNull(message = "Status is required")
     @Enumerated(EnumType.STRING)
     private CinemaStatus status;
-    private String addressId;
+    @NotNull(message = "Address is required")
+    private String address;
 
     @OneToMany(mappedBy = "cinema", cascade = CascadeType.ALL)
-    private List<Hall> hall;
+//    @Singular
+    private List<Hall> halls = new ArrayList<>();
 }

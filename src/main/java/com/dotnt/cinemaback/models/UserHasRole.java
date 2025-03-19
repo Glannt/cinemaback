@@ -15,7 +15,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @Builder
-public class UserHasRole extends AbstractEntity<UUID>{
+public class UserHasRole extends AbstractEntity<UUID> {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -25,5 +25,5 @@ public class UserHasRole extends AbstractEntity<UUID>{
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
 
-   
+
 }
