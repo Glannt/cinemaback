@@ -45,7 +45,7 @@ public class Hall extends AbstractEntity<UUID> {
 
     @OneToMany(mappedBy = "hall")
 //    @Singular
-    @JsonManagedReference
+//    @JsonManagedReference
     private Set<HallHasSeat> hallHasSeats = new HashSet<>();
 
     @OneToMany(mappedBy = "hall")

@@ -16,4 +16,6 @@ public interface ICinemaService {
 
     List<CinemaDTO> getCinemas(int page, int limit);
 
+    List<CinemaDTO> getCinemaWithStatusActive();
+    List<CinemaDTO> getCinemaWithStatusAndHaveMovieId(UUID movieId);
 }

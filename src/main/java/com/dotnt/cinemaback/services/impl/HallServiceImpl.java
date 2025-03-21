@@ -161,6 +161,8 @@ public class HallServiceImpl implements IHallService {
     }
 
 
+
+
     private List<HallHasSeat> createHallSeats(Hall hall, int seatCount, int seatsPerRow) {
         List<HallHasSeat> hallSeats = new ArrayList<>();
         int rows = (int) Math.ceil((double) seatCount / seatsPerRow);

@@ -1,8 +1,10 @@
 package com.dotnt.cinemaback.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -32,4 +34,7 @@ public class ShowTime extends AbstractEntity<UUID> {
     private Double ticketPrice;       // Giá vé (nếu muốn set riêng cho suất này)
 
     private String status;            // Ví dụ: ACTIVE, CANCELLED
+    @JsonFormat(pattern = "yyyy-mm-dd")
+    private LocalDate showDate;
+
 }

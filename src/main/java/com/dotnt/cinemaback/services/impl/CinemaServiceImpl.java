@@ -131,4 +131,35 @@ public class CinemaServiceImpl implements ICinemaService {
                         .build())
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<CinemaDTO> getCinemaWithStatusActive() {
+        return cinemaRepository.findAll()
+                .stream()
+                .filter(cinema -> cinema.getStatus() == CinemaStatus.ACTIVE)
+                .map(cinema -> CinemaDTO.builder()
+                        .id(cinema.getId())
+                        .name(cinema.getName())
+                        .status(cinema.getStatus().toString())
+                        .address(cinema.getAddress())
+//                        .halls(cinema.getHalls())
+                        .build())
+                .collect(Collectors.toList());
+    }
+    @Override
+    public List<CinemaDTO> getCinemaWithStatusAndHaveMovieId(UUID movieId) {
+        return cinemaRepository.findAll()
+                .stream()
+                .filter(cinema -> cinema.getStatus() == CinemaStatus.ACTIVE)
+                .filter(cinema -> cinema.getHalls().stream()
+                        .flatMap(hall -> hall.getShowTimes().stream())
+                        .anyMatch(showTime -> showTime.getMovie().getId().equals(movieId)))
+                .map(cinema -> CinemaDTO.builder()
+                        .id(cinema.getId())
+                        .name(cinema.getName())
+                        .status(cinema.getStatus().toString())
+                        .address(cinema.getAddress())
+                        .build())
+                .collect(Collectors.toList());
+    }
 }

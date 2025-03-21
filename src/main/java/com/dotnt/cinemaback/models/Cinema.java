@@ -2,6 +2,7 @@ package com.dotnt.cinemaback.models;
 
 
 import com.dotnt.cinemaback.constants.enums.CinemaStatus;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -30,5 +31,6 @@ public class Cinema extends AbstractEntity<UUID> {
 
     @OneToMany(mappedBy = "cinema", cascade = CascadeType.ALL)
 //    @Singular
+//    @JsonManagedReference
     private List<Hall> halls = new ArrayList<>();
 }

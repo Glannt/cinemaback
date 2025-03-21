@@ -1,6 +1,7 @@
 package com.dotnt.cinemaback.models;
 
 import com.dotnt.cinemaback.constants.enums.SeatStatus;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -36,7 +37,7 @@ public class Seat extends AbstractEntity<UUID> {
     private SeatType seatType;
 
     @OneToMany(mappedBy = "seat")
-//    @JsonManagedReference
+    @JsonBackReference
     @JsonIgnore
     private Set<HallHasSeat> hallHasSeats;
 }

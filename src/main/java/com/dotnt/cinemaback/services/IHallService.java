@@ -16,4 +16,6 @@ public interface IHallService {
     HallResponse getHall(UUID hallId);
 
     List<HallResponse> getHalls(int page, int limit);
+
+
 }
