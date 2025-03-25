@@ -90,4 +90,66 @@ public class MovieController {
                 .data(response)
                 .build();
     }
+
+    /**
+     * Get list of movies by genre name
+     *
+     * @param genreName name of the genre
+     * @return list of movies
+     */
+    @GetMapping("/genre/{name}")
+    public ApiResponse<List<MovieResponseDTO>> getMoviesByGenreName(@PathVariable("name") String genreName) {
+        var response = movieService.getMoviesByGenreName(genreName);
+        return ApiResponse.<List<MovieResponseDTO>>builder()
+                .code(HttpStatus.OK.value())
+                .message("Movies are fetched by genre")
+                .data(response)
+                .build();
+    }
+
+    /**
+     * Get list of movies by showing status
+     *
+     * @return list of movies
+     */
+    @GetMapping("/showing")
+    public ApiResponse<List<MovieResponseDTO>> getMoviesByShowingStatus() {
+        var response = movieService.getMoviesByShowingStatus();
+        return ApiResponse.<List<MovieResponseDTO>>builder()
+                .code(HttpStatus.OK.value())
+                .message("Movies currently showing are fetched")
+                .data(response)
+                .build();
+    }
+
+    /**
+     * Get list of upcoming movies
+     *
+     * @return list of movies
+     */
+    @GetMapping("/upcoming")
+    public ApiResponse<List<MovieResponseDTO>> getMoviesByUpComingStatus() {
+        var response = movieService.getMoviesByUpComingStatus();
+        return ApiResponse.<List<MovieResponseDTO>>builder()
+                .code(HttpStatus.OK.value())
+                .message("Upcoming movies are fetched")
+                .data(response)
+                .build();
+    }
+
+    /**
+     * Get list of types by movie ID
+     *
+     * @param movieId ID of the movie
+     * @return list of types
+     */
+    @GetMapping("{id}/types")
+    public ApiResponse<List<String>> getTypesByMovieId(@PathVariable("id") UUID movieId) {
+        var response = movieService.getTypesByMovieId(movieId);
+        return ApiResponse.<List<String>>builder()
+                .code(HttpStatus.OK.value())
+                .message("Types are fetched")
+                .data(response)
+                .build();
+    }
 }

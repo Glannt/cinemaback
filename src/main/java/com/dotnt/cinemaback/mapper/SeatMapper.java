@@ -18,7 +18,7 @@ public class SeatMapper {
                 .row(seat.getRow())
                 .number(seat.getNumber())
                 .type(String.valueOf(seat.getSeatType().getName()))
-                .price(seat.getPrice())
+                .price(seat.getSeatType().getPrice())
                 .build();
     }
 

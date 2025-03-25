@@ -4,11 +4,15 @@ import com.dotnt.cinemaback.constants.enums.CinemaStatus;
 import com.dotnt.cinemaback.dto.CinemaDTO;
 import com.dotnt.cinemaback.exception.AppException;
 import com.dotnt.cinemaback.exception.ErrorCode;
+import com.dotnt.cinemaback.mapper.CinemaMapper;
 import com.dotnt.cinemaback.models.Cinema;
 import com.dotnt.cinemaback.repositories.CinemaRepository;
 import com.dotnt.cinemaback.services.ICinemaService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,8 +25,9 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j(topic = "CINEMA-SERIVCE")
-public class CinemaServiceImpl implements ICinemaService {
+public class CinemaService implements ICinemaService {
     private final CinemaRepository cinemaRepository;
+    private final CinemaMapper cinemaMapper;
 
 
     @Override
@@ -39,13 +44,7 @@ public class CinemaServiceImpl implements ICinemaService {
 
         cinemaRepository.save(newCinema);
 
-        return CinemaDTO.builder()
-                .id(newCinema.getId())
-                .name(newCinema.getName())
-                .address(newCinema.getAddress())
-                .status(String.valueOf(CinemaStatus.ACTIVE))
-                .halls(newCinema.getHalls())
-                .build();
+        return cinemaMapper.toDto(newCinema);
     }
 
     @Override
@@ -104,25 +103,40 @@ public class CinemaServiceImpl implements ICinemaService {
         Cinema cinema = cinemaRepository.findCinemaById(cinemaId)
                 .orElseThrow(() -> new AppException(ErrorCode.ID_NOT_FOUND));
 
-        return CinemaDTO
-                .builder()
-                .id(cinema.getId())
-                .name(cinema.getName())
-                .status(String.valueOf(cinema.getStatus()))
-                .address(cinema.getAddress())
-                .halls(cinema.getHalls())
-                .build();
+        return cinemaMapper.toDto(cinema);
     }
 
     @Override
     public List<CinemaDTO> getCinemas(int page, int limit) {
-        List<Cinema> cinemas = cinemaRepository.findAll();
-        return cinemaRepository
-                .findAll()
-                .stream()
-                .filter(cinema -> !cinema.getStatus().equals("INACTIVE"))
-                .skip((page - 1) * limit)
-                .limit(limit)
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        Page<Cinema> cinemas = cinemaRepository.findActiveCinemas(pageable);
+        return cinemas.stream()
+                .map(cinema -> CinemaDTO.builder()
+                        .id(cinema.getId())
+                        .name(cinema.getName())
+                        .status(String.valueOf(cinema.getStatus()))
+                        .address(cinema.getAddress())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CinemaDTO> getCinemaWithStatusActive() {
+        List<Cinema> cinemas = cinemaRepository.findByStatus(CinemaStatus.ACTIVE);
+        return cinemas.stream()
+                .map(cinema -> CinemaDTO.builder()
+                        .id(cinema.getId())
+                        .name(cinema.getName())
+                        .status(cinema.getStatus().toString())
+                        .address(cinema.getAddress())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<CinemaDTO> getCinemaWithStatusAndHaveMovieId(UUID movieId) {
+        List<Cinema> cinemas = cinemaRepository.findActiveCinemasByMovieIdNative(movieId);
+        return cinemas.stream()
                 .map(cinema -> CinemaDTO.builder()
                         .id(cinema.getId())
                         .name(cinema.getName())

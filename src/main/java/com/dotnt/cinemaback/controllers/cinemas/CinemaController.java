@@ -127,4 +127,37 @@ public class CinemaController {
                 .data(response)
                 .build();
     }
+
+    /**
+     * Lấy danh sách các rạp có trạng thái hoạt động
+     *
+     * @return List<CinemaDTO> danh sách rạp có trạng thái hoạt động
+     */
+    @GetMapping("/active")
+    public ApiResponse<List<CinemaDTO>> getCinemasWithActiveStatus() {
+        var response = ICinemaService.getCinemaWithStatusActive();
+        return ApiResponse
+                .<List<CinemaDTO>>builder()
+                .code(HttpStatus.OK.value())
+                .message("Get list of active cinemas successfully")
+                .data(response)
+                .build();
+    }
+
+    /**
+     * Lấy danh sách các rạp có trạng thái hoạt động và có movieId
+     *
+     * @param movieId ID của movie
+     * @return List<CinemaDTO> danh sách rạp có trạng thái hoạt động và có movieId
+     */
+    @GetMapping("/active-with-movie/{movieId}")
+    public ApiResponse<List<CinemaDTO>> getCinemasWithActiveStatusAndMovieId(@PathVariable("movieId") UUID movieId) {
+        var response = ICinemaService.getCinemaWithStatusAndHaveMovieId(movieId);
+        return ApiResponse
+                .<List<CinemaDTO>>builder()
+                .code(HttpStatus.OK.value())
+                .message("Get list of active cinemas with movieId " + movieId + " successfully")
+                .data(response)
+                .build();
+    }
 }

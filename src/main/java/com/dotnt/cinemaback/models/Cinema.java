@@ -30,5 +30,6 @@ public class Cinema extends AbstractEntity<UUID> {
 
     @OneToMany(mappedBy = "cinema", cascade = CascadeType.ALL)
 //    @Singular
+//    @JsonManagedReference
     private List<Hall> halls = new ArrayList<>();
 }

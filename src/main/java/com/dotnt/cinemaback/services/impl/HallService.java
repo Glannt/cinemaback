@@ -16,6 +16,9 @@ import com.dotnt.cinemaback.services.IHallService;
 import com.dotnt.cinemaback.utils.RowsSeatGenerator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +30,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j(topic = "HALL-SERVICE")
-public class HallServiceImpl implements IHallService {
+public class HallService implements IHallService {
     private final SeatMapper seatMapper;
     private final SeatRepository seatRepository;
     private final HallRepository hallRepository;
@@ -146,9 +149,10 @@ public class HallServiceImpl implements IHallService {
 
     @Override
     public List<HallResponse> getHalls(int page, int limit) {
-        return hallRepository.findAll().stream()
-                .skip((page - 1) * limit)
-                .limit(limit)
+        Pageable pageable = PageRequest.of(page - 1, limit); // page - 1 vì Pageable bắt đầu từ 0
+        Page<Hall> hallPage = hallRepository.findAll(pageable);
+
+        return hallPage.stream()
                 .map(hall -> HallResponse.builder()
                         .id(hall.getId())
                         .name(hall.getName())
@@ -173,7 +177,6 @@ public class HallServiceImpl implements IHallService {
                 Seat seat = Seat.builder()
                         .row(currentRow)
                         .number(seatNum)
-                        .price(10.0)
                         .seatType(seatType)
                         .build();
 

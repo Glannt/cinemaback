@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j(topic = "SEAT-SERVICE")
-public class SeatServiceImpl implements ISeatService {
+public class SeatService implements ISeatService {
     private final SeatRepository seatRepository;
     private final HallRepository hallRepository;
     private final SeatTypeRepository seatTypeRepository;
@@ -65,10 +65,7 @@ public class SeatServiceImpl implements ISeatService {
                     .orElseThrow(() -> new AppException(ErrorCode.SEAT_TYPE_NOT_FOUND));
             seatEntity.setSeatType(seatType);
         }
-        if (seat.getPrice() != null) {
-            seatEntity.setPrice(seat.getPrice());
-            log.info("Update price of seat with id: {}", seatEntity.getPrice());
-        }
+
         seatRepository.save(seatEntity);
         SeatDTO dto = seatMapper.toDTO(seatEntity);
         return dto;

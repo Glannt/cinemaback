@@ -1,10 +1,13 @@
 package com.dotnt.cinemaback.models;
 
 import com.dotnt.cinemaback.constants.enums.SeatStatus;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -22,11 +25,8 @@ public class Seat extends AbstractEntity<UUID> {
     //    @Column(nullable = false)
     private Integer number;  // e.g., 1, 2, 3
 
-//    @Enumerated(EnumType.STRING)
-//    private SeatType type;
-
-    @Column(nullable = false)
-    private Double price;
+//    @Column(nullable = false)
+//    private Double price;
 
     //    @Column(nullable = false)
     private SeatStatus status;
@@ -36,7 +36,10 @@ public class Seat extends AbstractEntity<UUID> {
     private SeatType seatType;
 
     @OneToMany(mappedBy = "seat")
-//    @JsonManagedReference
+    @JsonBackReference
     @JsonIgnore
     private Set<HallHasSeat> hallHasSeats;
+
+    @OneToMany(mappedBy = "seat", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BookedSeat> bookedSeats = new ArrayList<>();
 }

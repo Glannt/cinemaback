@@ -1,7 +1,11 @@
 package com.dotnt.cinemaback.models;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
@@ -28,9 +32,6 @@ public class Movie extends AbstractEntity<UUID> {
     private boolean adult = false;
     //    @NotNull(message = "Cast is required")
 //    private String cast;
-    @ManyToOne
-    @JoinColumn(name = "genre_id")
-    private Genre genre;
 
     @NotNull(message = "Release date is required")
     @JsonFormat(pattern = "yyyy-MM-dd")
@@ -43,10 +44,12 @@ public class Movie extends AbstractEntity<UUID> {
     private Double price = 0.0;
     private boolean allowToShow = true;
 
+
     @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ShowTime> showTimes;
 
     @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<MovieImage> movieImages;
 
     @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)

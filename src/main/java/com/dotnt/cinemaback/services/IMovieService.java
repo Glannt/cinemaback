@@ -16,4 +16,13 @@ public interface IMovieService {
     MovieResponseDTO getMovie(String movieId);
 
     List<MovieResponseDTO> getAllMovies(int page, int limit);
+
+    List<MovieResponseDTO> getMoviesByGenreName(String name);
+
+    List<MovieResponseDTO> getMoviesByShowingStatus();
+
+    List<MovieResponseDTO> getMoviesByUpComingStatus();
+
+    List<String> getTypesByMovieId(UUID id);
+
 }
