@@ -91,7 +91,8 @@ public class MovieController {
                 .build();
     }
 
-    /** Get list of movies by genre name
+    /**
+     * Get list of movies by genre name
      *
      * @param genreName name of the genre
      * @return list of movies

@@ -8,6 +8,7 @@ import com.dotnt.cinemaback.models.ShowTime;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+
 @Component
 public class ShowTimeMapper {
     public ShowTimeResponseDTO convertToResponseDTO(ShowTime showTime) {

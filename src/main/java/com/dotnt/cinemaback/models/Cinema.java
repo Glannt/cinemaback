@@ -2,7 +2,6 @@ package com.dotnt.cinemaback.models;
 
 
 import com.dotnt.cinemaback.constants.enums.CinemaStatus;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;

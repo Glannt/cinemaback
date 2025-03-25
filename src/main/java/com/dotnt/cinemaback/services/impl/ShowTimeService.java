@@ -13,6 +13,8 @@ import com.dotnt.cinemaback.repositories.MovieRepository;
 import com.dotnt.cinemaback.repositories.ShowTimeRepository;
 import com.dotnt.cinemaback.services.IShowTimeService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -34,13 +36,6 @@ public class ShowTimeService implements IShowTimeService {
                 .orElseThrow(() -> new RuntimeException("Movie not found"));
         Hall hall = hallRepository.findById(dto.getHallId())
                 .orElseThrow(() -> new RuntimeException("Hall not found"));
-//        ShowTime showTime = ShowTime.builder()
-//                .movie(movie)
-//                .hall(hall)
-//                .startTime(dto.getStartTime())
-//                .endTime(dto.getEndTime())
-//                .ticketPrice(dto.getPrice())
-//                .build();
         ShowTime showTime = showTimeMapper.convertToEntity(dto, movie, hall);
         showTimeRepository.save(showTime);
 
@@ -49,32 +44,26 @@ public class ShowTimeService implements IShowTimeService {
 
     @Override
     public List<ShowTimeResponseDTO> getAllShowTimes(int page, int limit) {
-        return showTimeRepository.findAll().stream()
-                .skip((page - 1) * limit)
-                .limit(limit)
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        return showTimeRepository.findAll(pageable)
+                .stream()
                 .map(showTimeMapper::convertToResponseDTO)
                 .toList();
     }
 
     @Override
     public List<ShowTimeResponseDTO> getShowTimesByMovie(UUID movieId) {
-        return showTimeRepository
-                .findAll()
-                .stream()
-                .filter(showTime -> showTime.getMovie().getId().equals(movieId))
+        List<ShowTime> showTimes = showTimeRepository.findByMovieId(movieId);
+        return showTimes.stream()
                 .map(showTimeMapper::convertToResponseDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<ShowTimeResponseDTO> getShowTimesByCinema(UUID cinemaId) {
-//        return showTimeRepository.findByHall_Cinema_Id(cinemaId).stream()
-//                .map(showTimeMapper::convertToResponseDTO)
-//                .toList();
-        return showTimeRepository
-                .findAll()
-                .stream()
-                .filter(showTime -> showTime.getMovie().getId().equals(cinemaId))
+
+        List<ShowTime> showTimes = showTimeRepository.findByHall_Cinema_Id(cinemaId);
+        return showTimes.stream()
                 .map(showTimeMapper::convertToResponseDTO)
                 .collect(Collectors.toList());
     }
@@ -104,23 +93,24 @@ public class ShowTimeService implements IShowTimeService {
     public void deleteShowTime(UUID id) {
 
     }
+
     @Override
     public List<ShowTimeResponseDTO> getShowTimesByCinemaAndMovie(UUID cinemaId, UUID movieId) {
-        return showTimeRepository.findAll().stream()
-                .filter(showTime -> showTime.getHall().getCinema().getId().equals(cinemaId))
-                .filter(showTime -> showTime.getMovie().getId().equals(movieId))
+        List<ShowTime> showTimes = showTimeRepository.findByHall_Cinema_IdAndMovie_Id(cinemaId, movieId);
+        return showTimes.stream()
                 .map(showTimeMapper::convertToResponseDTO)
                 .collect(Collectors.toList());
     }
+
     @Override
     public List<ShowTimeResponseDTO> getShowTimesByCinemaAndMovieAndShowDate(UUID cinemaId, UUID movieId, LocalDate showDate) {
-        return showTimeRepository.findAll().stream()
-                .filter(showTime -> showTime.getHall().getCinema().getId().equals(cinemaId))
-                .filter(showTime -> showTime.getMovie().getId().equals(movieId))
-                .filter(showTime -> showTime.getShowDate().equals(showDate))
+        List<ShowTime> showTimes = showTimeRepository
+                .findByHall_Cinema_IdAndMovie_IdAndShowDate(cinemaId, movieId, showDate);
+        return showTimes.stream()
                 .map(showTimeMapper::convertToResponseDTO)
                 .collect(Collectors.toList());
     }
+
     @Override
     public String getProjectionTypeByShowTimeId(UUID id) {
         ShowTime showTime = showTimeRepository.findById(id)

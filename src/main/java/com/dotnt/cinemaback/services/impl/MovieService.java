@@ -11,6 +11,9 @@ import com.dotnt.cinemaback.repositories.MovieRepository;
 import com.dotnt.cinemaback.services.IMovieService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -77,18 +80,6 @@ public class MovieService implements IMovieService {
                 .duration(finalMovie.getDuration())
                 .director(finalMovie.getDirector())
                 .releaseDate(finalMovie.getReleaseDate().toString())
-//                .poster(finalMovie.getMovieImages().stream()
-//                        .filter(movieImage -> movieImage.getTitle().equals("POSTER"))
-//                        .findFirst()
-//                        .map(MovieImage::getUrl)
-//                        .orElse(""))
-//                .trailer(finalMovie
-//                        .getMovieImages()
-//                        .stream()
-//                        .filter(movieImage -> movieImage.getTitle().equals("TRAILER"))
-//                        .findFirst()
-//                        .map(MovieImage::getUrl)
-//                        .orElse(""))
                 .images(finalMovie.getMovieImages().stream().toList())
                 .genres(finalMovie
                         .getMovieGenres()
@@ -179,16 +170,7 @@ public class MovieService implements IMovieService {
 //                .cast(existingMovie.getCast())
                 .genres(existingMovie.getMovieGenres().stream().map(movieGenre -> movieGenre.getGenre().getName()).toList())
                 .releaseDate(existingMovie.getReleaseDate().toString())
-//                .poster(existingMovie.getMovieImages().stream()
-//                        .filter(movieImage -> movieImage.getTitle().equals("POSTER"))
-//                        .findFirst()
-//                        .map(MovieImage::getUrl)
-//                        .orElse(""))
-//                .trailer(existingMovie.getMovieImages().stream()
-//                        .filter(movieImage -> movieImage.getTitle().equals("TRAILER"))
-//                        .findFirst()
-//                        .map(MovieImage::getUrl)
-//                        .orElse(""))
+
                 .images(existingMovie.getMovieImages().stream().toList())
                 .status(existingMovie.getStatus())
                 .build();
@@ -221,16 +203,6 @@ public class MovieService implements IMovieService {
                         .director(movie.getDirector())
                         .genres(movie.getMovieGenres().stream().map(movieGenre -> movieGenre.getGenre().getName()).toList())
                         .releaseDate(movie.getReleaseDate().toString())
-//                        .poster(movie.getMovieImages().stream()
-//                                .filter(movieImage -> movieImage.getTitle().equals("POSTER"))
-//                                .findFirst()
-//                                .map(MovieImage::getUrl)
-//                                .orElse(""))
-//                        .trailer(movie.getMovieImages().stream()
-//                                .filter(movieImage -> movieImage.getTitle().equals("TRAILER"))
-//                                .findFirst()
-//                                .map(MovieImage::getUrl)
-//                                .orElse(""))
                         .images(movie.getMovieImages().stream().toList())
                         .status(movie.getStatus())
                         .build())
@@ -239,34 +211,26 @@ public class MovieService implements IMovieService {
 
     @Override
     public List<MovieResponseDTO> getAllMovies(int page, int limit) {
+        Pageable pageable = PageRequest.of(page - 1, limit);
+        Page<Movie> moviePage = movieRepository.findByStatusNot("INACTIVE", pageable);
 
-        return movieRepository.findAll().stream()
-                .filter(movie -> !movie.getStatus().equals("INACTIVE"))
-                .skip((page - 1) * limit)
-                .limit(limit)
+        return moviePage.stream()
                 .map(movie -> MovieResponseDTO.builder()
                         .id(movie.getId())
                         .title(movie.getTitle())
                         .description(movie.getDescription())
                         .duration(movie.getDuration())
                         .director(movie.getDirector())
-                        .genres(movie.getMovieGenres().stream().map(movieGenre -> movieGenre.getGenre().getName()).toList())
+                        .genres(movie.getMovieGenres().stream()
+                                .map(movieGenre -> movieGenre.getGenre().getName())
+                                .toList())
                         .releaseDate(movie.getReleaseDate().toString())
-//                        .poster(movie.getMovieImages().stream()
-//                                .filter(movieImage -> movieImage.getTitle().equals("POSTER"))
-//                                .findFirst()
-//                                .map(MovieImage::getUrl)
-//                                .orElse(""))
-//                        .trailer(movie.getMovieImages().stream()
-//                                .filter(movieImage -> movieImage.getTitle().equals("TRAILER"))
-//                                .findFirst()
-//                                .map(MovieImage::getUrl)
-//                                .orElse(""))
                         .images(movie.getMovieImages().stream().toList())
                         .status(movie.getStatus())
                         .build())
                 .toList();
     }
+
     @Override
     public List<MovieResponseDTO> getMoviesByGenreName(String name) {
         return movieRepository.findByMovieGenres_Genre_NameIgnoreCase(name).stream()
@@ -278,16 +242,6 @@ public class MovieService implements IMovieService {
                         .director(movie.getDirector())
                         .genres(movie.getMovieGenres().stream().map(movieGenre -> movieGenre.getGenre().getName()).toList())
                         .releaseDate(movie.getReleaseDate().toString())
-//                        .poster(movie.getMovieImages().stream()
-//                                .filter(movieImage -> movieImage.getTitle().equals("POSTER"))
-//                                .findFirst()
-//                                .map(MovieImage::getUrl)
-//                                .orElse(""))
-//                        .trailer(movie.getMovieImages().stream()
-//                                .filter(movieImage -> movieImage.getTitle().equals("TRAILER"))
-//                                .findFirst()
-//                                .map(MovieImage::getUrl)
-//                                .orElse(""))
                         .images(movie.getMovieImages().stream().toList())
                         .status(movie.getStatus())
                         .build())
@@ -296,9 +250,9 @@ public class MovieService implements IMovieService {
 
     @Override
     public List<MovieResponseDTO> getMoviesByShowingStatus() {
-        return movieRepository.findAll()
-                .stream()
-                .filter(movie -> movie.getStatus().equalsIgnoreCase("Showing"))
+        List<Movie> showingMovies = movieRepository.findByStatusIgnoreCase("Showing");
+
+        return showingMovies.stream()
                 .map(movie -> MovieResponseDTO.builder()
                         .id(movie.getId())
                         .title(movie.getTitle())
@@ -307,29 +261,19 @@ public class MovieService implements IMovieService {
                         .director(movie.getDirector())
                         .genres(movie.getMovieGenres().stream()
                                 .map(movieGenre -> movieGenre.getGenre().getName())
-                                .collect(Collectors.toList()))
+                                .toList())
                         .releaseDate(movie.getReleaseDate().toString())
-//                        .poster(movie.getMovieImages().stream()
-//                                .filter(movieImage -> movieImage.getTitle().equals("POSTER"))
-//                                .findFirst()
-//                                .map(MovieImage::getUrl)
-//                                .orElse(""))
-//                        .trailer(movie.getMovieImages().stream()
-//                                .filter(movieImage -> movieImage.getTitle().equals("TRAILER"))
-//                                .findFirst()
-//                                .map(MovieImage::getUrl)
-//                                .orElse(""))
                         .images(movie.getMovieImages().stream().toList())
                         .status(movie.getStatus())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override
     public List<MovieResponseDTO> getMoviesByUpComingStatus() {
-        return movieRepository.findAll()
-                .stream()
-                .filter(movie -> movie.getStatus().equalsIgnoreCase("Showing"))
+        List<Movie> upcomingMovies = movieRepository.findByStatusIgnoreCase("Upcoming");
+
+        return upcomingMovies.stream()
                 .map(movie -> MovieResponseDTO.builder()
                         .id(movie.getId())
                         .title(movie.getTitle())
@@ -338,22 +282,12 @@ public class MovieService implements IMovieService {
                         .director(movie.getDirector())
                         .genres(movie.getMovieGenres().stream()
                                 .map(movieGenre -> movieGenre.getGenre().getName())
-                                .collect(Collectors.toList()))
+                                .toList())
                         .releaseDate(movie.getReleaseDate().toString())
-//                        .poster(movie.getMovieImages().stream()
-//                                .filter(movieImage -> movieImage.getTitle().equals("POSTER"))
-//                                .findFirst()
-//                                .map(MovieImage::getUrl)
-//                                .orElse(""))
-//                        .trailer(movie.getMovieImages().stream()
-//                                .filter(movieImage -> movieImage.getTitle().equals("TRAILER"))
-//                                .findFirst()
-//                                .map(MovieImage::getUrl)
-//                                .orElse(""))
                         .images(movie.getMovieImages().stream().toList())
                         .status(movie.getStatus())
                         .build())
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

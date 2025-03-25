@@ -19,10 +19,10 @@ public class MovieResponseDTO {
     private String description;
     private Integer duration;
     private String director;
-//    private List<String> cast;
+    //    private List<String> cast;
     private List<String> genres;
     private String releaseDate;
-//    private String poster;
+    //    private String poster;
 //    private String trailer;
     private List<MovieImage> images;
     private String status;

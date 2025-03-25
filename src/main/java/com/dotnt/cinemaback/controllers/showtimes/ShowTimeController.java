@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -41,7 +40,7 @@ public class ShowTimeController {
     /**
      * Get list of showtimes
      *
-     * @param page page number
+     * @param page  page number
      * @param limit number of items per page
      * @return list of showtimes
      */
@@ -59,7 +58,7 @@ public class ShowTimeController {
      * Get showtimes by cinema ID and movie ID
      *
      * @param cinemaId ID of the cinema
-     * @param movieId ID of the movie
+     * @param movieId  ID of the movie
      * @return list of showtimes
      */
     @GetMapping("/cinema/{cinemaId}/movie/{movieId}")
@@ -72,6 +71,7 @@ public class ShowTimeController {
                 .data(response)
                 .build();
     }
+
     /**
      * Get showtimes by movie ID
      *
@@ -107,7 +107,7 @@ public class ShowTimeController {
     /**
      * Update showtime information
      *
-     * @param id ID of the showtime to update
+     * @param id  ID of the showtime to update
      * @param dto DTO containing updated information
      * @return ShowTimeResponse updated
      */
@@ -137,13 +137,13 @@ public class ShowTimeController {
     }
 
     /**
-            * Get showtimes by cinema ID, movie ID, and show date
- *
-         * @param cinemaId ID of the cinema
- * @param movieId ID of the movie
- * @param showDate Date of the show
- * @return list of showtimes
- */
+     * Get showtimes by cinema ID, movie ID, and show date
+     *
+     * @param cinemaId ID of the cinema
+     * @param movieId  ID of the movie
+     * @param showDate Date of the show
+     * @return list of showtimes
+     */
     @GetMapping("/cinema/{cinemaId}/movie/{movieId}/date/{showDate}")
     public ApiResponse<List<ShowTimeResponseDTO>> getShowTimesByCinemaAndMovieAndShowDate(
             @PathVariable("cinemaId") UUID cinemaId,
@@ -156,6 +156,7 @@ public class ShowTimeController {
                 .data(response)
                 .build();
     }
+
     /**
      * Get projection type by showtime ID
      *

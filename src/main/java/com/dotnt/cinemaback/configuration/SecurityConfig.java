@@ -16,7 +16,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class SecurityConfig {
 
     @Bean
-    protected SecurityFilterChain configure(HttpSecurity http) throws Exception{
+    protected SecurityFilterChain configure(HttpSecurity http) throws Exception {
         http
                 .csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.disable())
                 .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.disable())
@@ -25,7 +25,7 @@ public class SecurityConfig {
                         .permitAll()
                         .anyRequest()
                         .authenticated())
-                ;
+        ;
         return http.build();
     }
 

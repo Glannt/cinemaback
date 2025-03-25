@@ -2,9 +2,11 @@ package com.dotnt.cinemaback.constants.init;
 
 import com.dotnt.cinemaback.constants.enums.ESeatType;
 import com.dotnt.cinemaback.constants.enums.UserType;
+import com.dotnt.cinemaback.models.Customer;
 import com.dotnt.cinemaback.models.Genre;
 import com.dotnt.cinemaback.models.Role;
 import com.dotnt.cinemaback.models.SeatType;
+import com.dotnt.cinemaback.repositories.CustomerRepository;
 import com.dotnt.cinemaback.repositories.GenreRepository;
 import com.dotnt.cinemaback.repositories.RoleRepository;
 import com.dotnt.cinemaback.repositories.SeatTypeRepository;
@@ -26,6 +28,7 @@ public class InitApp {
     private final RoleRepository roleRepository;
     private final SeatTypeRepository seatTypeRepository;
     private final GenreRepository genreRepository;
+    private final CustomerRepository customerRepository;
 
     @Bean
     @ConditionalOnProperty(prefix = "spring",
@@ -71,6 +74,7 @@ public class InitApp {
                 seatTypeRepository.save(SeatType.builder()
                         .name(ESeatType.STANDARD)
                         .description("Standard seat")
+                        .price(0.0)
                         .build());
             }
             Optional<SeatType> seatTypeVIP = seatTypeRepository.findByName(ESeatType.VIP);
@@ -78,6 +82,7 @@ public class InitApp {
                 seatTypeRepository.save(SeatType.builder()
                         .name(ESeatType.VIP)
                         .description("Vip seat")
+                        .price(10.0)
                         .build());
             }
             Optional<SeatType> seatTypeCouple = seatTypeRepository.findByName(ESeatType.COUPLE);
@@ -85,6 +90,7 @@ public class InitApp {
                 seatTypeRepository.save(SeatType.builder()
                         .name(ESeatType.COUPLE)
                         .description("Couple seat")
+                        .price(5.0)
                         .build());
             }
 
@@ -119,6 +125,11 @@ public class InitApp {
                             .build());
                 }
             }
+
+            Customer customer = Customer.builder()
+                    .loyaltyPoints(0)
+                    .marketingOptIn(true)
+                    .build();
 
             log.info("Application initialization completed .....");
         };
