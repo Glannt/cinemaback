@@ -15,9 +15,7 @@ public class HallResponse {
     private UUID id;
     private String name;
     private String status;
-    private List<SeatDTO> seats;
+    private List<String> seats;
 
-    public List<SeatDTO> getSeats() {
-        return seats != null ? Collections.unmodifiableList(seats) : Collections.emptyList();
-    }
+
 }

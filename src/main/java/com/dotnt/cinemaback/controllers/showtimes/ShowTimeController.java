@@ -3,9 +3,11 @@ package com.dotnt.cinemaback.controllers.showtimes;
 import com.dotnt.cinemaback.dto.request.ShowTimeRequestDTO;
 import com.dotnt.cinemaback.dto.response.ApiResponse;
 import com.dotnt.cinemaback.dto.response.ShowTimeResponseDTO;
-import com.dotnt.cinemaback.services.IShowTimeService;
+import com.dotnt.cinemaback.services.showtimes.IShowTimeService;
+import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -45,9 +47,9 @@ public class ShowTimeController {
      * @return list of showtimes
      */
     @GetMapping
-    public ApiResponse<List<ShowTimeResponseDTO>> getAllShowTimes(@RequestParam int page, @RequestParam int limit) {
-        List<ShowTimeResponseDTO> response = showTimeService.getAllShowTimes(page, limit);
-        return ApiResponse.<List<ShowTimeResponseDTO>>builder()
+    public ApiResponse<Page<ShowTimeResponseDTO>> getAllShowTimes(@RequestParam int page, @RequestParam int limit) {
+        Page<ShowTimeResponseDTO> response = showTimeService.getAllShowTimes(page, limit);
+        return ApiResponse.<Page<ShowTimeResponseDTO>>builder()
                 .code(HttpStatus.OK.value())
                 .message("Showtimes are fetched ")
                 .data(response)
@@ -61,6 +63,7 @@ public class ShowTimeController {
      * @param movieId  ID of the movie
      * @return list of showtimes
      */
+    @RateLimiter(name = "cinemaServiceRL", fallbackMethod = "getShowTimesByCinemaAndMovieFallback")
     @GetMapping("/cinema/{cinemaId}/movie/{movieId}")
     public ApiResponse<List<ShowTimeResponseDTO>> getShowTimesByCinemaAndMovie(
             @PathVariable("cinemaId") UUID cinemaId, @PathVariable("movieId") UUID movieId) {
@@ -78,6 +81,7 @@ public class ShowTimeController {
      * @param movieId ID of the movie
      * @return list of showtimes
      */
+    @RateLimiter(name = "cinemaServiceRL", fallbackMethod = "getShowTimesMovieFallback")
     @GetMapping("/movie/{movieId}")
     public ApiResponse<List<ShowTimeResponseDTO>> getShowTimesByMovie(@PathVariable("movieId") UUID movieId) {
         List<ShowTimeResponseDTO> response = showTimeService.getShowTimesByMovie(movieId);
@@ -172,5 +176,28 @@ public class ShowTimeController {
                 .data(projectionType)
                 .build();
     }
+
+
+
+
+
+
+//    Fall back method
+    public ApiResponse<List<ShowTimeResponseDTO>> getShowTimesByCinemaAndMovieFallback(UUID cinemaId, UUID movieId, Throwable throwable) {
+        log.error("Error occurred while fetching showtimes by cinema and movie: {}", throwable.getMessage());
+        return ApiResponse.<List<ShowTimeResponseDTO>>builder()
+                .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .message("Error occurred while fetching showtimes by cinema and movie")
+                .build();
+    }
+
+    public ApiResponse<List<ShowTimeResponseDTO>> getShowTimesMovieFallback(UUID movieId, Throwable throwable) {
+        log.error("Error occurred while fetching showtimes by movie: {}", throwable.getMessage());
+        return ApiResponse.<List<ShowTimeResponseDTO>>builder()
+                .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .message("Error occurred while fetching showtimes by movie")
+                .build();
+    }
+
 }
 

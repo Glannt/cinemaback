@@ -17,6 +17,6 @@ public class TicketResponseDTO {
     private String paymentStatus;
     private BigDecimal totalAmount;
     private String currency;
-    private ShowTimeResponseDTO showtime;
+    private LocalDateTime showtime;
     private List<SeatDTO> seats;
 }

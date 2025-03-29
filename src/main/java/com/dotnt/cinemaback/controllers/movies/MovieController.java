@@ -1,15 +1,26 @@
 package com.dotnt.cinemaback.controllers.movies;
 
+import com.dotnt.cinemaback.dto.request.MovieImageDTO;
 import com.dotnt.cinemaback.dto.request.MovieRequestDTO;
 import com.dotnt.cinemaback.dto.response.ApiResponse;
 import com.dotnt.cinemaback.dto.response.MovieResponseDTO;
-import com.dotnt.cinemaback.services.IMovieService;
+import com.dotnt.cinemaback.models.MovieImage;
+import com.dotnt.cinemaback.services.movies.IMovieCacheService;
+import com.dotnt.cinemaback.services.movies.IMovieService;
+import com.dotnt.cinemaback.utils.FileUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,6 +31,8 @@ import java.util.UUID;
 public class MovieController {
     private final IMovieService movieService;
 
+    private final IMovieCacheService movieCacheService;
+
     /**
      * Create a new movie
      *
@@ -27,20 +40,102 @@ public class MovieController {
      * @return MovieResponse saved
      */
     @PostMapping
-    public ApiResponse<MovieResponseDTO> createMovie(@RequestBody MovieRequestDTO request, BindingResult result) {
+    public ResponseEntity<ApiResponse<MovieResponseDTO>> createMovie(@RequestBody MovieRequestDTO request, BindingResult result) {
         if (result.hasErrors()) {
             log.error("Validation error: {}", result.getAllErrors());
-            return ApiResponse.<MovieResponseDTO>builder()
+            return ResponseEntity.badRequest().body(ApiResponse.<MovieResponseDTO>builder()
                     .code(HttpStatus.BAD_REQUEST.value())
                     .message("Validation error")
-                    .build();
+                    .build());
         }
         var response = movieService.createMovie(request);
-        return ApiResponse.<MovieResponseDTO>builder()
+         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.<MovieResponseDTO>builder()
                 .code(HttpStatus.CREATED.value())
                 .message("Movie is created")
                 .data(response)
-                .build();
+                .build());
+    }
+
+
+    /**
+     * Upload movie images
+     * @param movieId ID of the movie
+     * @param poster Poster image
+//     * @param trailer Trailer video (optional)
+     * @param files Additional image files
+     * @return ApiResponse with list of MovieImage
+     */
+
+    @PostMapping(value = "uploads/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<List<MovieImage>>> createMovieImage(@PathVariable("id") UUID movieId,
+                                                          @RequestParam(value = "poster", required = false) MultipartFile poster,
+//                                                          @ModelAttribute("trailer") MultipartFile trailer,
+                                                          @RequestParam(value = "files", required = false) List<MultipartFile> files) throws IOException {
+
+        List<MovieImage> images = new ArrayList<>();
+        long size  = poster.getSize();
+        // Handle poster if provided
+        if (!poster.isEmpty() || poster.getSize() > 0) {
+            ApiResponse<?> check = FileUtils.validateImageFile(poster);
+            if (check != null) ResponseEntity.status(HttpStatus.BAD_REQUEST).body((ApiResponse<List<MovieImage>>) check);
+            String filename = FileUtils.storeFile(poster);
+            MovieImage image = movieService.createMovieImage(movieId, MovieImageDTO.builder()
+                    .movieId(movieId)
+                    .url(filename)
+                    .title("poster")
+                    .build());
+            images.add(image);
+        }
+
+        // Handle additional image files
+        if (files != null) {
+            for (MultipartFile file : files) {
+                if (file.isEmpty() || file.getSize() == 0) continue;
+
+                ApiResponse<?> check = FileUtils.validateImageFile(file);
+                if (check != null) return ResponseEntity.status(HttpStatus.BAD_REQUEST).body((ApiResponse<List<MovieImage>>) check);
+
+                String filename = FileUtils.storeFile(file);
+                MovieImage image = movieService.createMovieImage(movieId, MovieImageDTO.builder()
+                        .movieId(movieId)
+                        .url(filename)
+                        .title("image")
+                        .build());
+                images.add(image);
+            }
+            log.info("Uploaded {} additional images", images);
+        }
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                ApiResponse.<List<MovieImage>>builder()
+                        .code(HttpStatus.CREATED.value())
+                        .message("Movie images uploaded successfully")
+                        .data(images)
+                        .build()
+        );
+    }
+
+    @GetMapping("/images/{imageName}")
+    public ResponseEntity<?> viewImage(@PathVariable String imageName) {
+        try {
+            java.nio.file.Path imagePath = Paths.get("uploads/"+imageName);
+            UrlResource resource = new UrlResource(imagePath.toUri());
+
+            if (resource.exists()) {
+                return ResponseEntity.ok()
+                        .contentType(MediaType.IMAGE_JPEG)
+                        .body(resource);
+            } else {
+                log.info(imageName + " not found");
+                return ResponseEntity.ok()
+                        .contentType(MediaType.IMAGE_JPEG)
+                        .body(new UrlResource(Paths.get("uploads/notfound.jpeg").toUri()));
+                //return ResponseEntity.notFound().build();
+            }
+        } catch (Exception e) {
+            log.error("Error occurred while retrieving image: " + e.getMessage());
+            return ResponseEntity.notFound().build();
+        }
     }
 
     /**
@@ -51,14 +146,33 @@ public class MovieController {
      * @return MovieResponse updated
      */
     @PutMapping("{id}")
-    public ApiResponse<MovieResponseDTO> updateMovie(@PathVariable("id") UUID movieId, @RequestBody MovieRequestDTO request) {
+    public ResponseEntity<ApiResponse<MovieResponseDTO>> updateMovie(@PathVariable("id") UUID movieId, @RequestBody MovieRequestDTO request) {
         var response = movieService.updateMovie(movieId, request);
-        return ApiResponse.<MovieResponseDTO>builder()
+        return ResponseEntity.ok(
+                ApiResponse.<MovieResponseDTO>builder()
+                        .code(HttpStatus.OK.value())
+                        .message("Movie is updated")
+                        .data(response)
+                        .build()
+        );
+    }
+
+    /**
+     * Delete a movieImage
+     *
+     * @param movieId ID of the movie to delete
+     * @param imageId ID of the image to delete
+     * @return MovieImage deleted
+     */
+    @DeleteMapping("{id}/images/{imageId}")
+    public ApiResponse<MovieImage> deleteMovieImage(@PathVariable("id") UUID movieId, @PathVariable("imageId") UUID imageId) {
+        var response = movieService.deleteMovieImage(movieId, imageId);
+        return ApiResponse.<MovieImage>builder()
                 .code(HttpStatus.OK.value())
-                .message("Movie is updated")
-                .data(response)
+                .message("Movie image is deleted")
                 .build();
     }
+
 
     /**
      * Get movie details by ID

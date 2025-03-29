@@ -2,7 +2,7 @@ package com.dotnt.cinemaback.controllers.seats;
 
 import com.dotnt.cinemaback.dto.SeatDTO;
 import com.dotnt.cinemaback.dto.response.ApiResponse;
-import com.dotnt.cinemaback.services.ISeatService;
+import com.dotnt.cinemaback.services.seats.ISeatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;

@@ -1,0 +1,19 @@
+FROM maven:3.9.9-eclipse-temurin-23 AS build
+WORKDIR /app
+COPY . /app/cinema-back
+RUN mvn package -f /app/cinema-back/pom.xml
+
+#multi-staging
+FROM eclipse-temurin:23-jdk-noble
+WORKDIR /app
+COPY --from=build /app/cinema-backend/target/cinema-0.0.1-SNAPSHOT.jar app.jar
+COPY --from=build /app/cinema-backend/uploads uploads
+
+EXPOSE 8008
+CMD ["java","-jar","app.jar"]
+
+#docker build -t cinema-backend:1.0.4 -f ./DockerfileSpringCinema .
+#docker login
+#create sunlight4d/shopapp-spring:1.0.4 repository on DockerHub
+#docker tag shopapp-spring:1.0.4 sunlight4d/shopapp-spring:1.0.4
+#docker push sunlight4d/shopapp-spring:1.0.4
