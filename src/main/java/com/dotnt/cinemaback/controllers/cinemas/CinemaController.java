@@ -2,11 +2,16 @@ package com.dotnt.cinemaback.controllers.cinemas;
 
 import com.dotnt.cinemaback.dto.CinemaDTO;
 import com.dotnt.cinemaback.dto.response.ApiResponse;
-import com.dotnt.cinemaback.services.ICinemaService;
+import com.dotnt.cinemaback.dto.response.ListResponse;
+import com.dotnt.cinemaback.models.cache.CinemaCache;
+import com.dotnt.cinemaback.services.cinemas.ICinemaRedisService;
+import com.dotnt.cinemaback.services.cinemas.ICinemaService;
 import com.dotnt.cinemaback.validators.ValidCinemaDTO;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +24,7 @@ import java.util.UUID;
 @RequestMapping("api/cinema")
 public class CinemaController {
     private final ICinemaService ICinemaService;
+    private final ICinemaRedisService cinemaCacheService;
 
     @PostMapping("test")
     public CinemaDTO testCreateCinema(@RequestBody CinemaDTO request) {
@@ -100,8 +106,8 @@ public class CinemaController {
     @GetMapping("{id}")
     public ApiResponse<CinemaDTO> getCinema(@PathVariable("id") UUID cinemaId) {
 
-        var response = ICinemaService.getCinemaById(cinemaId);
-
+        var response = cinemaCacheService.getCinemaCacheById(cinemaId);
+ 
         return ApiResponse
                 .<CinemaDTO>builder()
                 .code(HttpStatus.OK.value())
@@ -116,16 +122,26 @@ public class CinemaController {
      * @return List<CinemaDTO> danh sách rạp
      */
     @GetMapping
-    public ApiResponse<List<CinemaDTO>> getCinemas(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int limit) {
+    public ResponseEntity<ApiResponse<ListResponse<CinemaDTO>>> getCinemas(@RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "10") int limit) throws JsonProcessingException {
 
-        var response = ICinemaService.getCinemas(page, limit);
-
-        return ApiResponse
-                .<List<CinemaDTO>>builder()
-                .code(HttpStatus.OK.value())
-                .message("Get list cinemas successfully")
-                .data(response)
+        var cinemas = cinemaCacheService.getAllCinemaCache(page, limit);
+        ListResponse<CinemaDTO> response = ListResponse.<CinemaDTO>builder()
+                .currentPage(cinemas.getNumber() + 1)
+                .pageSize(cinemas.getSize())
+                .totalPages(cinemas.getTotalPages())
+                .totalElements(cinemas.getTotalElements())
+                .isFirst(cinemas.isFirst())
+                .isLast(cinemas.isLast())
+                .data(cinemas.getContent())
                 .build();
+
+        return ResponseEntity.ok()
+                .body(ApiResponse
+                        .<ListResponse<CinemaDTO>>builder()
+                        .code(HttpStatus.OK.value())
+                        .message("Get list cinemas successfully")
+                        .data(response)
+                        .build());
     }
 
     /**
@@ -134,14 +150,19 @@ public class CinemaController {
      * @return List<CinemaDTO> danh sách rạp có trạng thái hoạt động
      */
     @GetMapping("/active")
-    public ApiResponse<List<CinemaDTO>> getCinemasWithActiveStatus() {
-        var response = ICinemaService.getCinemaWithStatusActive();
-        return ApiResponse
-                .<List<CinemaDTO>>builder()
-                .code(HttpStatus.OK.value())
-                .message("Get list of active cinemas successfully")
-                .data(response)
+    public ResponseEntity<ApiResponse<ListResponse<CinemaDTO>>> getCinemasWithActiveStatus() {
+        var cinemas = ICinemaService.getCinemaWithStatusActive();
+        ListResponse<CinemaDTO> response = ListResponse.<CinemaDTO>builder()
+                .data(cinemas)
                 .build();
+        return ResponseEntity
+                .ok()
+                .body(ApiResponse
+                        .<ListResponse<CinemaDTO>>builder()
+                        .code(HttpStatus.OK.value())
+                        .message("Get list of active cinemas successfully")
+                        .data(response)
+                        .build());
     }
 
     /**

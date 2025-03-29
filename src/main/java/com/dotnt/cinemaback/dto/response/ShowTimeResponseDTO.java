@@ -1,5 +1,6 @@
 package com.dotnt.cinemaback.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Builder;
 import lombok.Data;
 
@@ -15,6 +16,7 @@ public class ShowTimeResponseDTO {
     private String hallName;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
+    @JsonFormat(pattern = "yyyy-mm-dd")
     private LocalDate showDate;
     private double price;
     private String projectionType;

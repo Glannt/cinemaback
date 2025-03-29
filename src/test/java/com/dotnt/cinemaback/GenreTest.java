@@ -6,7 +6,7 @@ import com.dotnt.cinemaback.models.Movie;
 import com.dotnt.cinemaback.models.MovieGenre;
 import com.dotnt.cinemaback.models.MovieImage;
 import com.dotnt.cinemaback.repositories.MovieRepository;
-import com.dotnt.cinemaback.services.impl.MovieService;
+import com.dotnt.cinemaback.services.movies.impl.MovieService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

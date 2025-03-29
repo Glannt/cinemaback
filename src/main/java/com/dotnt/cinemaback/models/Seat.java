@@ -19,7 +19,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 public class Seat extends AbstractEntity<UUID> {
-    //    @Column(nullable = false)
+    @Column(name = "seat_row")
     private String row;  // e.g., "A", "B", "C"
 
     //    @Column(nullable = false)

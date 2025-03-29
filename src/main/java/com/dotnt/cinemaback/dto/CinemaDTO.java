@@ -18,5 +18,5 @@ public class CinemaDTO {
     private String name;
     private String status;
     private String address;
-    private List<Hall> halls;
+    private List<String> hallIds;
 }
