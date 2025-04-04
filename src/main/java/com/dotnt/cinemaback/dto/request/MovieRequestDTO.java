@@ -19,7 +19,7 @@ public class MovieRequestDTO {
     private String director;
     private List<String> cast;         // Danh sách diễn viên
     private List<String> genres;       // Danh sách genre name
-    @JsonFormat(pattern = "yyyy-MM-dd")
+//    @JsonFormat(pattern = "yyyy-MM-dd")
     private String releaseDate;        // ISO format yyyy-MM-dd
     private String status;             // ACTIVE | INACTIVE
     private Double rating;

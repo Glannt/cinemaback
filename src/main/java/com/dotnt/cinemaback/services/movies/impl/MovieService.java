@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -69,14 +70,14 @@ public class MovieService implements IMovieService {
 
         // Convert the saved Movie entity to MovieResponseDTO
         MovieResponseDTO movieResponseDTO = MovieResponseDTO.builder()
-                .id(finalMovie.getId())
-                .title(finalMovie.getTitle())
-                .description(finalMovie.getDescription())
-                .duration(finalMovie.getDuration())
-                .director(finalMovie.getDirector())
-                .releaseDate(finalMovie.getReleaseDate().toString())
-                .images(finalMovie.getMovieImages().stream().toList())
-                .genres(finalMovie
+                .id(movie.getId())
+                .title(movie.getTitle())
+                .description(movie.getDescription())
+                .duration(movie.getDuration())
+                .director(movie.getDirector())
+                .releaseDate(movie.getReleaseDate().toString())
+                .images( new ArrayList<>() )
+                .genres(movie
                         .getMovieGenres()
                         .stream()
                         .map(movieGenre -> movieGenre
