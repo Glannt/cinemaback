@@ -29,7 +29,7 @@ public class RedisService implements IRedisService {
     }
 
     @Override
-    public void setString(String key, String value, int expireTime, TimeUnit timeUnit) {
+    public void setString(String key, String value, long expireTime, TimeUnit timeUnit) {
         if(StringUtils.hasLength(key)){
             return;
         }
@@ -56,7 +56,26 @@ public class RedisService implements IRedisService {
         }catch (Exception e){
 //            log.error("setObject error:{}",e.getMessage());
         }
-//        redisTemplate.opsForValue().set(key, value);
+        redisTemplate.opsForValue().set(key, value);
+//        // Kiểm tra xem giá trị có được lưu thành công hay không
+//        Object result = redisTemplate.opsForValue().get(key);
+//        log.info("Set redis::{}", result != null && result.equals(value));
+    }
+
+    @Override
+    public void setObject(String key, Object value, long expireTime, TimeUnit timeUnit) {
+        //        log.info("Set redis::1, {}", key);
+        if (!StringUtils.hasLength(key)) { // null or ''
+//            log.info("Set redis::null, {}", StringUtils.hasLength(key));
+            return;
+        }
+
+        try {
+            redisTemplate.opsForValue().set(key, value);
+        }catch (Exception e){
+//            log.error("setObject error:{}",e.getMessage());
+        }
+        redisTemplate.opsForValue().set(key, value, expireTime, timeUnit);
 //        // Kiểm tra xem giá trị có được lưu thành công hay không
 //        Object result = redisTemplate.opsForValue().get(key);
 //        log.info("Set redis::{}", result != null && result.equals(value));

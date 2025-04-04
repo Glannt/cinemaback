@@ -64,3 +64,8 @@ networks:
   cinema-network:
     name: cinema-network
     driver: bridge
+
+
+#  docker-compose -f ./deployment.yaml up -d mysql8-container
+#  docker-compose -f ./deployment.yaml up -d phpmyadmin8-container
+#  docker-compose -f ./deployment.yaml up -d redis-container

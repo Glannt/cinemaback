@@ -6,13 +6,13 @@ public interface IRedisService {
 
     void setString(String key, String value);
 
-    void setString(String key, String value, int expireTime, TimeUnit timeUnit);
+    void setString(String key, String value, long expireTime, TimeUnit timeUnit);
 
     String getString(String key);
 
     void setObject(String key, Object value);
 
-    void setObject(String key, Object value, int expireTime, TimeUnit timeUnit);
+    void setObject(String key, Object value, long expireTime, TimeUnit timeUnit);
 
     <T> T getObject(String key, Class<T> targetClass);
 

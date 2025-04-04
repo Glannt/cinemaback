@@ -10,6 +10,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -43,6 +44,7 @@ public class Movie extends AbstractEntity<UUID> {
     @NotNull(message = "Price is required")
     private Double price = 0.0;
     private boolean allowToShow = true;
+    private String trailer;
 
 
     @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -50,7 +52,7 @@ public class Movie extends AbstractEntity<UUID> {
 
     @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
-    private List<MovieImage> movieImages;
+    private List<MovieImage> movieImages = new ArrayList<>();
 
     @OneToMany(mappedBy = "movie", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<MovieGenre> movieGenres;
