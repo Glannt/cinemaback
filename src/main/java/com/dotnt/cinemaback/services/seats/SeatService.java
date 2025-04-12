@@ -68,4 +68,5 @@ public class SeatService implements ISeatService {
         SeatDTO dto = seatMapper.toDTO(seatEntity);
         return dto;
     }
+
 }

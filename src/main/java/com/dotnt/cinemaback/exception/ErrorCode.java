@@ -20,6 +20,7 @@ public enum ErrorCode {
     ID_NOT_FOUND(1011, "ID not found", HttpStatus.NOT_FOUND),
     OBJECT_NOT_FOUND(1012, "Object not found", HttpStatus.NOT_FOUND),
     SEAT_TYPE_NOT_FOUND(1013, "Seat type not found", HttpStatus.NOT_FOUND),
+    USER_IS_LOCKED(1014, "User is locked", HttpStatus.UNAUTHORIZED),
     ;
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {

@@ -11,4 +11,5 @@ public interface ISeatService {
     SeatDTO getSeatById(UUID seatId);
 
     SeatDTO updateSeat(UUID seatId, SeatDTO seat);
+
 }

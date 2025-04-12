@@ -21,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -49,6 +50,7 @@ public class MovieCacheService implements IMovieCacheService {
         .removalListener(notification -> log.info("Remove cache: {}", notification.getKey()))
         .build();
 
+    //Cache for movieId
     @Override
     public MovieResponseDTO getMovieCacheById(UUID movieId) {
         //get data from local cache
@@ -125,6 +127,85 @@ public class MovieCacheService implements IMovieCacheService {
     private String genEventItemKeyLock(UUID movieId) {
         return "movie:lock:" + movieId;
     }
+
+    //--------------
+
+
+
+    private final static Cache<String, List<MovieResponseDTO>> movieListClientLocalCache = CacheBuilder
+            .newBuilder()
+            .initialCapacity(10)
+            .concurrencyLevel(12)
+            .expireAfterWrite(5, TimeUnit.MINUTES)
+            .removalListener(notification -> log.info("Remove cache: {}", notification.getKey()))
+            .build();
+
+    // Cache for top 4 new movies List
+    @Override
+    public List<MovieResponseDTO> getTop4MovieCache(String status) throws JsonProcessingException {
+        List<MovieResponseDTO> movieCacheList = getTop4MovieCacheLocalCache(genEventItemsKey(status));
+
+            if(movieCacheList != null){
+                return movieCacheList;
+            }
+
+        return getTop4DistributedCache(status);
+    }
+
+    public List<MovieResponseDTO> getTop4MovieCacheLocalCache(String key){
+        return movieListClientLocalCache.getIfPresent(key);
+    }
+
+    private List<MovieResponseDTO> getTop4DistributedCache(String status) throws JsonProcessingException {
+        String key = genEventItemsKey(status);
+        String json = redisService.getString(key);
+        List<MovieResponseDTO> movieCacheList = json != null
+                ? objectMap.readValue(json, new TypeReference<List<MovieResponseDTO>>() {})
+                : null;
+        if(movieCacheList == null){
+            movieCacheList = getMoviesTop4Database(status);
+        }
+
+        movieListClientLocalCache.put(key, movieCacheList);
+        return movieCacheList;
+    }
+
+    private List<MovieResponseDTO> getMoviesTop4Database(String status) {
+        RedisDistributedLocker locker = redisDistributedService.getDistributedLock(genEventItemsKeyLock(status));
+        try {
+            boolean isLock = locker.tryLock(1, 5, TimeUnit.SECONDS);
+            if (!isLock) {
+                return null;
+            }
+            String key = genEventItemsKey(status);
+            String json = redisService.getString(key);
+            List<MovieResponseDTO> movieCacheList = json != null
+                    ? objectMap.readValue(json, new TypeReference<List<MovieResponseDTO>>() {})
+                    : null;
+
+            if(movieCacheList != null){
+                return movieCacheList;
+            }
+
+            List<Movie> movieList = movieRepository.findTop4ByStatusOrderByReleaseDateDesc(status);
+
+            return movieList.stream().map(movieMapper::toDto).toList();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            locker.unlock();
+        }
+    }
+
+    private String genEventItemsKey(String status) {
+        return "movies:top4:" + status ;
+    }
+
+    private String genEventItemsKeyLock(String status) {
+        return "movies:top4:lock:" + status;
+    }
+
+    // Cache for movie list page
 
     private final static Cache<String, Page<MovieResponseDTO>> movieListLocalCache = CacheBuilder
             .newBuilder()

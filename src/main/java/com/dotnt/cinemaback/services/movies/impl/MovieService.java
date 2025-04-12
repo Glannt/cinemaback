@@ -13,6 +13,7 @@ import com.dotnt.cinemaback.repositories.GenreRepository;
 import com.dotnt.cinemaback.repositories.MovieImageRepository;
 import com.dotnt.cinemaback.repositories.MovieRepository;
 import com.dotnt.cinemaback.services.movies.IMovieService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -36,6 +37,8 @@ public class MovieService implements IMovieService {
     private final GenreRepository genreRepository;
     private final MovieImageRepository movieImageRepository;
 
+
+    //add movie
     @Override
     public MovieResponseDTO createMovie(MovieRequestDTO movieRequestDTO) {
         //Convert String Array Genres to List MovieGenres
@@ -93,6 +96,7 @@ public class MovieService implements IMovieService {
         return movieResponseDTO;
     }
 
+    //update movie
     @Override
     public MovieResponseDTO updateMovie(UUID movieId, MovieRequestDTO movieRequestDTO) {
         if (movieRequestDTO == null) {
@@ -172,6 +176,7 @@ public class MovieService implements IMovieService {
                 .build();
     }
 
+    //delete movie
     @Override
     public void deleteMovie(String movieId) {
         // Fetch the existing movie by ID
@@ -187,6 +192,7 @@ public class MovieService implements IMovieService {
 
     }
 
+    //get movie by id
     @Override
     public MovieResponseDTO getMovie(String movieId) {
         return movieRepository.findById(UUID.fromString(movieId))
@@ -205,6 +211,7 @@ public class MovieService implements IMovieService {
                 .orElseThrow(() -> new RuntimeException("Movie not found or is inactive"));
     }
 
+    //get all movies(admin, manager)
     @Override
     public List<MovieResponseDTO> getAllMovies(int page, int limit) {
         Pageable pageable = PageRequest.of(page - 1, limit, Sort.by("createdAt").descending());
@@ -227,6 +234,7 @@ public class MovieService implements IMovieService {
                 .toList();
     }
 
+    //get movie by genres
     @Override
     public List<MovieResponseDTO> getMoviesByGenreName(String name) {
         return movieRepository.findByMovieGenres_Genre_NameIgnoreCase(name).stream()
@@ -244,6 +252,7 @@ public class MovieService implements IMovieService {
                 .toList();
     }
 
+    //get movies showing
     @Override
     public List<MovieResponseDTO> getMoviesByShowingStatus() {
         List<Movie> showingMovies = movieRepository.findByStatusIgnoreCase("Showing");
@@ -328,4 +337,8 @@ public class MovieService implements IMovieService {
 
         return movieImage;
     }
+
+//    public List<MovieResponseDTO> getTop4MoviesByReleaseDate(String status) throws JsonProcessingException {
+//        return movieCacheService.getTop4MovieCache(status);
+//    }
 }

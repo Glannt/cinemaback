@@ -7,6 +7,7 @@ import com.dotnt.cinemaback.models.Movie;
 import com.dotnt.cinemaback.models.ShowTime;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Component
@@ -21,6 +22,7 @@ public class ShowTimeMapper {
                 .price(showTime.getTicketPrice())
                 .showDate(showTime.getShowDate())
                 .projectionType(showTime.getHall().getProjectionType().toString())
+                .hallId(showTime.getHall().getId().toString())
                 .build();
     }
 
