@@ -23,4 +23,5 @@ public interface SeatRepository extends JpaRepository<Seat, UUID> {
                 WHERE st.end_time < :now AND s.status = '2'
             """, nativeQuery = true)
     List<Seat> findOccupiedSeatsNative(@Param("now") LocalDateTime now);
+
 }

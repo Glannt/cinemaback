@@ -7,7 +7,7 @@ RUN mvn package -f /app/cinema-back/pom.xml
 FROM eclipse-temurin:23-jdk-noble
 WORKDIR /app
 COPY --from=build /app/cinema-backend/target/cinema-0.0.1-SNAPSHOT.jar app.jar
-COPY --from=build /app/cinema-backend/uploads uploads
+
 
 EXPOSE 8008
 CMD ["java","-jar","app.jar"]

@@ -26,4 +26,5 @@ public interface IShowTimeService {
     List<ShowTimeResponseDTO> getShowTimesByCinemaAndMovieAndShowDate(UUID cinemaId, UUID movieId, LocalDate showDate);
 
     String getProjectionTypeByShowTimeId(UUID id);
+    List<ShowTimeResponseDTO> getShowTimeByRequestBody(ShowTimeRequestDTO dto);
 }

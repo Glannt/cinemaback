@@ -16,6 +16,8 @@ public interface MovieRepository extends JpaRepository<Movie, UUID> {
 
     List<Movie> findByStatusIgnoreCase(String status);
 
+    List<Movie> findTop4ByStatusOrderByReleaseDateDesc(String showingStatus);
+
 
 
 }

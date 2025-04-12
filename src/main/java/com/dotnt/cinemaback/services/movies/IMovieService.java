@@ -4,6 +4,7 @@ import com.dotnt.cinemaback.dto.request.MovieImageDTO;
 import com.dotnt.cinemaback.dto.request.MovieRequestDTO;
 import com.dotnt.cinemaback.dto.response.MovieResponseDTO;
 import com.dotnt.cinemaback.models.MovieImage;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.util.List;
 import java.util.UUID;
@@ -30,5 +31,7 @@ public interface IMovieService {
     MovieImage createMovieImage(UUID movieId, MovieImageDTO url);
 
     MovieImage deleteMovieImage(UUID movieId, UUID imageId);
+
+//    List<MovieResponseDTO> getTop4MoviesByReleaseDate(String status) throws JsonProcessingException;
 
 }

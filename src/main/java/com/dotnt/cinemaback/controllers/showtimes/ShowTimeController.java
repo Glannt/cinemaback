@@ -1,8 +1,10 @@
 package com.dotnt.cinemaback.controllers.showtimes;
 
+import com.dotnt.cinemaback.dto.SeatDTO;
 import com.dotnt.cinemaback.dto.request.ShowTimeRequestDTO;
 import com.dotnt.cinemaback.dto.response.ApiResponse;
 import com.dotnt.cinemaback.dto.response.ShowTimeResponseDTO;
+import com.dotnt.cinemaback.services.seats.ISeatService;
 import com.dotnt.cinemaback.services.showtimes.IShowTimeService;
 import io.github.resilience4j.ratelimiter.annotation.RateLimiter;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -23,6 +26,7 @@ import java.util.UUID;
 public class ShowTimeController {
     private final IShowTimeService showTimeService;
 
+
     /**
      * Create a new showtime
      *
@@ -32,6 +36,7 @@ public class ShowTimeController {
     @PostMapping
     public ApiResponse<ShowTimeResponseDTO> createShowTime(@RequestBody ShowTimeRequestDTO dto) {
         ShowTimeResponseDTO response = showTimeService.createShowTime(dto);
+        log.info("response: {}", response);
         return ApiResponse.<ShowTimeResponseDTO>builder()
                 .code(HttpStatus.CREATED.value())
                 .message("Showtime is created")
@@ -176,6 +181,18 @@ public class ShowTimeController {
                 .data(projectionType)
                 .build();
     }
+
+    @GetMapping("/request-body")
+    public ResponseEntity<ApiResponse<List<ShowTimeResponseDTO>>> getShowTimeByRequestBody(@RequestBody ShowTimeRequestDTO dto) {
+        List<ShowTimeResponseDTO> response = showTimeService.getShowTimeByRequestBody(dto);
+        return ResponseEntity.ok(ApiResponse.<List<ShowTimeResponseDTO>>builder()
+                .code(HttpStatus.OK.value())
+                .message("Showtimes are fetched by request body")
+                .data(response)
+                .build());
+    }
+
+
 
 
 

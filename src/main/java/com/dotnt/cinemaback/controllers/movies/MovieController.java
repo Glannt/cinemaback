@@ -266,4 +266,19 @@ public class MovieController {
                 .data(response)
                 .build();
     }
+
+    /**
+     * Get top 4 movies by release date
+     *
+     * @return list of top 4 movies
+     */
+    @GetMapping("/top4")
+    public ApiResponse<List<MovieResponseDTO>> getTop4MoviesByReleaseDate(@RequestParam(defaultValue = "showing") String status) throws IOException {
+        var response = movieCacheService.getTop4MovieCache(status);
+        return ApiResponse.<List<MovieResponseDTO>>builder()
+                .code(HttpStatus.OK.value())
+                .message("Top 4 movies are fetched")
+                .data(response)
+                .build();
+    }
 }

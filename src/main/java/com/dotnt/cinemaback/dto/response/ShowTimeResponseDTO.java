@@ -13,10 +13,10 @@ import java.util.UUID;
 public class ShowTimeResponseDTO {
     private UUID id;
     private String movieTitle;
+    private String hallId;
     private String hallName;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
-    @JsonFormat(pattern = "yyyy-mm-dd")
     private LocalDate showDate;
     private double price;
     private String projectionType;

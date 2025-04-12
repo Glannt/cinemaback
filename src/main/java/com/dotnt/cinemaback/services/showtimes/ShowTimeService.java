@@ -118,4 +118,10 @@ public class ShowTimeService implements IShowTimeService {
         return hall.getProjectionType().toString();
     }
 
+    @Override
+    public List<ShowTimeResponseDTO> getShowTimeByRequestBody(ShowTimeRequestDTO dto) {
+
+        return List.of();
+    }
+
 }

@@ -5,10 +5,15 @@ import com.dotnt.cinemaback.constants.enums.UserStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "user")
@@ -18,7 +23,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 public class User extends AbstractEntity<UUID>
-//        implements UserDetails
+        implements UserDetails
 {
 
     @Email
@@ -56,35 +61,35 @@ public class User extends AbstractEntity<UUID>
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<UserHasRole> userHasRoles;
 
-//    @Override
-//    public Collection<? extends GrantedAuthority> getAuthorities() {
-//        return userHasRoles.stream().map(UserHasRole::getRole)
-//                .map(role -> new SimpleGrantedAuthority(role.getName()))
-//                .collect(Collectors.toSet());
-//    }
-//
-//    @Override
-//    public String getUsername() {
-//        return "";
-//    }
-//
-//    @Override
-//    public boolean isAccountNonExpired() {
-//        return UserDetails.super.isAccountNonExpired();
-//    }
-//
-//    @Override
-//    public boolean isAccountNonLocked() {
-//        return UserDetails.super.isAccountNonLocked();
-//    }
-//
-//    @Override
-//    public boolean isCredentialsNonExpired() {
-//        return UserDetails.super.isCredentialsNonExpired();
-//    }
-//
-//    @Override
-//    public boolean isEnabled() {
-//        return UserDetails.super.isEnabled();
-//    }
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return userHasRoles.stream().map(UserHasRole::getRole)
+                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName()))
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }
